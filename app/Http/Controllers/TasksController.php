@@ -26,7 +26,6 @@ class TasksController extends Controller
         return view('tasks.index',$data);
     }
       
-    
     public function create()
     {
         $task = new Task;

@@ -113,14 +113,21 @@ class TasksController extends Controller
         ]);
          $userId = Auth::id();
         
-         $task = Task::findOrFail($id);
+         $task = \App\Models\Task::findOrFail($id);
+        
+        if (\Auth::id() === $task->user_id) {
         
          $task->content = $request->content;
          $task->status=$request->status;
          $task->user_id = $userId; 
          $task->save();
 
-        return redirect('/');
-
+        return view('tasks.index', [
+            'task' => $task,
+            ]);
+        } else {
+        // タスクの所有者でない場合はリダイレクトまたはエラーメッセージを表示
+        return redirect('/')->with('error', 'You do not have permission to update this task.');
+        }
     }
 }

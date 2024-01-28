@@ -21,9 +21,13 @@ class TasksController extends Controller
                 'user' => $user,
                 'tasks' => $tasks,
         ];
-    }
         // dashboardビューでそれらを表示
         return view('tasks.index',$data);
+        }
+        else {
+        return view('dashboard');
+  
+        }       
     }
       
     public function create()

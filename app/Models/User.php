@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable 
@@ -49,4 +50,11 @@ class User extends Authenticatable
     {
         $this->loadCount('newtasks');
     }
+
+    public function tasks()
+    {
+        // User モデルと Task モデルのリレーションシップを定義する
+        return $this->hasMany(Task::class);
+    }
+    
 }

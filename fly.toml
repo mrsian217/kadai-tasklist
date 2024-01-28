@@ -13,7 +13,7 @@ console_command = "php /var/www/html/artisan tinker"
     PHP_VERSION = "8.1"
 
 [env]
-  APP_DEBUG = true
+  APP_DEBUG = false
   APP_ENV = "production"
   APP_NAME = "Laravel"
   APP_URL = "https://tasklist-morishima.fly.dev"

@@ -11,23 +11,21 @@ class TasksController extends Controller
 {
     public function index()
     {
+        $data = [];
         if (\Auth::check()) { // 認証済みの場合
             // 認証済みユーザを取得
             $user = \Auth::user();
-            // ユーザの投稿の一覧を作成日時の降順で取得
-            // （後のChapterで他ユーザの投稿も取得するように変更しますが、現時点ではこのユーザの投稿のみ取得します）
-            
-            
-        $tasks=Task::all();
-        return view('tasks.index',[    
-            'tasks' => $tasks,        
-        ]);            
-
-     }
-        
-        // dashboardビューでそれらを表示
-        return view('dashboard');
+           
+             $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
+            $data = [
+                'user' => $user,
+                'tasks' => $tasks,
+        ];
     }
+        // dashboardビューでそれらを表示
+        return view('tasks.index',$data);
+    }
+      
     
     public function create()
     {
@@ -60,33 +58,49 @@ class TasksController extends Controller
     public function show($id)
     {
         $task= Task::findOrFail($id);
-
-        return view('tasks.show', [
+        
+           if (\Auth::id() === $task->user_id) {
+            return view('tasks.show', [
             'task' => $task,
             ]);
+      }
+      else {
+        // 所有者でない場合、リダイレクトなどの処理を追加するか、エラーを表示するなどの対応を行う
+        return redirect('/')->with('error', 'You do not have permission to view this task.');
+  
+    }   
     }
-
-    
      public function destroy($id)
-    {
-        $task = Task::findOrFail($id);
-        // メッセージを削除
+{
+     $task = Task::findOrFail($id);
+
+    // ログインユーザーがタスクの所有者であるかどうかを確認
+    if (\Auth::id() === $task->user_id) {
+        // タスクを削除
         $task->delete();
 
         // トップページへリダイレクトさせる
-        return redirect('/');
-
+        return redirect()->route('tasks.index')->with('success', 'Delete Successful');
+    } else {
+        // 所有者でない場合、リダイレクトなどの処理を追加するか、エラーを表示するなどの対応を行う
+        return redirect('/')->with('error', 'You do not have permission to delete this task.');
     }
+}
     
     public function edit($id)
     {
-         $task = \App\Models\Task::findOrFail($id);
-    
-          return view('tasks.edit', [
-            'task' => $task,
-            ]);
-         
+        $task = \App\Models\Task::findOrFail($id);
+
+    if (\Auth::id() === $task->user_id) {
+        // タスクの編集画面を表示
+        return view('tasks.edit', ['task' => $task]);
+    } else {
+        // タスクの所有者でない場合はリダイレクトまたはエラーメッセージを表示
+        return redirect('/')->with('error', 'You do not have permission to edit this task.');
     }
+    
+    }
+    
 
     public function update(Request $request, $id)
     {
@@ -97,6 +111,7 @@ class TasksController extends Controller
          $userId = Auth::id();
         
          $task = Task::findOrFail($id);
+        
          $task->content = $request->content;
          $task->status=$request->status;
          $task->user_id = $userId; 

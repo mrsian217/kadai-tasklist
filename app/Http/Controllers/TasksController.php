@@ -122,9 +122,7 @@ class TasksController extends Controller
          $task->user_id = $userId; 
          $task->save();
 
-        return view('tasks.index', [
-            'task' => $task,
-            ]);
+        return redirect()->route('tasks.index')->with('success', 'Delete Successful');
         } else {
         // タスクの所有者でない場合はリダイレクトまたはエラーメッセージを表示
         return redirect('/')->with('error', 'You do not have permission to update this task.');
